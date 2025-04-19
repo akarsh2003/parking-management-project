@@ -19,6 +19,18 @@ exports.bookBikeSlot = async (req, res) => {
 
   slot.isBooked = true;
   slot.bookedBy = req.user.id;
+  slot.bookedAt = new Date();
+  await slot.save();
+  res.status(200).json({ message: 'Slot booked successfully' });
+};
+
+exports.bookCarSlot = async (req, res) => {
+  const slot = await Car.findById(req.params.slotId);
+  if (!slot || slot.isBooked) return res.status(400).json({ message: 'Slot not available' });
+
+  slot.isBooked = true;
+  slot.bookedBy = req.user.id;
+  slot.bookedAt = new Date();
   await slot.save();
   res.status(200).json({ message: 'Slot booked successfully' });
 };
