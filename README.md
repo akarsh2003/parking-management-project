@@ -1,70 +1,109 @@
-"# parking-management-project" 
-✅ API Base URL
-ts
+🚀 Frontend Integration Guide (Angular + Node.js Backend)
+🌐 Base API URL
+bash
 Copy
 Edit
-const API_BASE_URL = 'http://localhost:5000/api';
-✅ Endpoints Overview
-🔐 Auth
-
-Operation	URL	Method	Body
-Register User	/auth/register	POST	{ username, password }
-Login	/auth/login	POST	{ username, password }
-👤 User Operations
-
-Operation	URL	Method	Notes
-View Slots	/user/slots	GET	Requires Bearer Token
-Book a Slot	/user/book/:slotId	POST	Requires Bearer Token
-🛠 Admin Operations
-
-Operation	URL	Method	Body
-Create Car Slots	/admin/create-car-slots	POST	{ numberOfSlots }
-Create Bike Slots	/admin/create-bike-slots	POST	{ numberOfSlots }
-✅ Authorization
-Add JWT token in HTTP Headers:
+http://localhost:5000/api
+🔐 Authentication
+➕ Register
+css
+Copy
+Edit
+POST /auth/register
+Body: {
+  "username": "user1",
+  "email": "user@example.com",
+  "password": "yourpassword"
+}
+🔑 Login
+css
+Copy
+Edit
+POST /auth/login
+Body: {
+  "email": "user@example.com",
+  "password": "yourpassword"
+}
+Response: {
+  token: "JWT_TOKEN"
+}
+🔸 Store this token in localStorage and send it as a Bearer token in headers for authenticated requests:
 
 ts
 Copy
 Edit
 headers: {
-  Authorization: `Bearer ${token}`
+  Authorization: 'Bearer ' + localStorage.getItem('token')
 }
-✅ Angular Services Example (Skeleton)
-auth.service.ts
-ts
+🅿️ Parking Slots - Admin Only
+🚗 Create Car Slots
+pgsql
 Copy
 Edit
-login(data: any): Observable<any> {
-  return this.http.post(`${API_BASE_URL}/auth/login`, data);
+POST /admin/create-car-slots
+Headers: Authorization: Bearer <admin_token>
+Body: {
+  "numberOfSlots": 20
 }
-user.service.ts
-ts
+🏍️ Create Bike Slots
+pgsql
 Copy
 Edit
-getAllSlots(): Observable<any> {
-  return this.http.get(`${API_BASE_URL}/user/slots`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+POST /admin/create-bike-slots
+Headers: Authorization: Bearer <admin_token>
+Body: {
+  "numberOfSlots": 15
 }
-admin.service.ts
-ts
+📌 This will add or remove slots to match the specified number. If booked slots are being deleted, admin will be warned.
+
+📋 View Available Slots (User)
+🚗 View Car Slots
+sql
 Copy
 Edit
-createCarSlots(count: number): Observable<any> {
-  return this.http.post(`${API_BASE_URL}/admin/create-car-slots`, { numberOfSlots: count }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-}
-✅ Suggested Angular Structure
-services/
+GET /user/available-car-slots
+Headers: Authorization: Bearer <user_token>
+🏍️ View Bike Slots
+sql
+Copy
+Edit
+GET /user/available-bike-slots
+Headers: Authorization: Bearer <user_token>
+✅ Book Slot (User)
+🚗 Book Car Slot
+sql
+Copy
+Edit
+PUT /user/book-car-slot/:slotId
+Headers: Authorization: Bearer <user_token>
+🏍️ Book Bike Slot
+sql
+Copy
+Edit
+PUT /user/book-bike-slot/:slotId
+Headers: Authorization: Bearer <user_token>
+❌ Exit Booking (User)
+🚗 Exit Car Slot Booking
+pgsql
+Copy
+Edit
+PUT /user/exit-car-booking/:slotId
+Headers: Authorization: Bearer <user_token>
+🏍️ Exit Bike Slot Booking
+pgsql
+Copy
+Edit
+PUT /user/exit-bike-booking/:slotId
+Headers: Authorization: Bearer <user_token>
+Only the user who booked the slot can exit the booking.
 
-auth.service.ts
+👥 Admin Credentials
+Admin is predefined in the backend. To log in:
 
-user.service.ts
-
-admin.service.ts
-
-components/
-
-login/, register/, dashboard/, admin-panel/, etc.
+makefile
+Copy
+Edit
+Email: admin@example.com
+Password: admin123
+📌 These values can be modified in the backend authController.js or .env.
 
